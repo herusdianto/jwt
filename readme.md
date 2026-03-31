@@ -28,9 +28,14 @@ All processing is done in your browser using the Web Crypto API. No data is sent
 - Web Crypto API - Secure signature generation
 - Vanilla JavaScript (no framework)
 
+## License
+
+MIT License
+
+## Contributing
+
+Contributions are welcome! Feel free to submit a Pull Request.
+
 ## Demo
-You can see the demo [here](https://jwt-heru.web.app/)
 
-## Author
-Created by [Heru Rusdianto](https://herusdianto.github.io/) with AI Assistance
-
+[https://herusdianto.github.io/jwt/](https://herusdianto.github.io/jwt/)
