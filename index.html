@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Heru Rusdianto">
+    <title>JWT Encoder & Decoder</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+</head>
+<body>
+    <div class="topbar">
+        <a href="https://github.com/herusdianto/jwt" class="github-link" target="_blank" rel="noopener noreferrer" title="GitHub Repository">
+            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.01.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.11.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.19 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z" fill="currentColor"/>
+            </svg>
+        </a>
+        <div class="theme-toggle">
+            <button id="theme-switch" aria-label="Toggle dark/light mode" class="theme-toggle-btn">
+                <span id="theme-icon"></span>
+            </button>
+        </div>
+    </div>
+
+    <header>
+        <h1>JWT Tool</h1>
+        <p>Encode and decode JSON Web Tokens easily</p>
+        <p class="client-side-note"><strong>100% Client-side:</strong> All processing is done in your browser. <u>No data is sent to any server.</u></p>
+    </header>
+
+    <div class="container jwt-container">
+        <!-- Algorithm Selection -->
+        <div class="algorithm-bar">
+            <label for="jwt-algorithm">Algorithm:</label>
+            <select id="jwt-algorithm">
+                <option value="HS256" selected>HS256 (HMAC + SHA-256)</option>
+                <option value="HS384">HS384 (HMAC + SHA-384)</option>
+                <option value="HS512">HS512 (HMAC + SHA-512)</option>
+                <option value="RS256">RS256 (RSA + SHA-256)</option>
+                <option value="RS384">RS384 (RSA + SHA-384)</option>
+                <option value="RS512">RS512 (RSA + SHA-512)</option>
+                <option value="ES256">ES256 (ECDSA + SHA-256)</option>
+                <option value="ES384">ES384 (ECDSA + SHA-384)</option>
+                <option value="ES512">ES512 (ECDSA + SHA-512)</option>
+                <option value="PS256">PS256 (RSASSA-PSS + SHA-256)</option>
+                <option value="PS384">PS384 (RSASSA-PSS + SHA-384)</option>
+                <option value="PS512">PS512 (RSASSA-PSS + SHA-512)</option>
+                <option value="none">none (Unsecured JWT)</option>
+            </select>
+        </div>
+
+        <div id="key-inputs" style="display:none; margin-bottom:16px;">
+            <div id="private-key-section" style="margin-bottom:8px;">
+                <label for="private-key">Private Key (PEM):</label>
+                <textarea id="private-key" rows="4" placeholder="Paste your private key here..."></textarea>
+            </div>
+            <div id="public-key-section">
+                <label for="public-key">Public Key (PEM):</label>
+                <textarea id="public-key" rows="4" placeholder="Paste your public key here..."></textarea>
+            </div>
+        </div>
+
+        <div class="jwt-workspace">
+            <!-- Left Column: Encoded -->
+            <div class="jwt-column encoded-column">
+                <div class="column-header">
+                    <h2>Encoded</h2>
+                    <span class="paste-hint">paste a token here</span>
+                </div>
+                <div class="jwt-encoded-box">
+                    <div id="jwt-colored" class="jwt-colored-display" contenteditable="true" spellcheck="false"></div>
+                </div>
+                <div class="encoded-actions">
+                    <button class="copy-btn" id="copy-jwt">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                        Copy JWT
+                    </button>
+                    <button class="clear-btn" id="clear-jwt">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                        Clear
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Column: Decoded -->
+            <div class="jwt-column decoded-column">
+                <div class="column-header">
+                    <h2>Decoded</h2>
+                    <span class="edit-hint">edit the payload and secret</span>
+                </div>
+
+                <!-- Header -->
+                <div class="jwt-part">
+                    <div class="jwt-part-header">
+                        <span class="jwt-part-label header-label">HEADER</span>
+                        <span class="jwt-part-algorithm" id="algorithm-badge"></span>
+                    </div>
+                    <textarea id="decoded-header" class="jwt-code header-code" spellcheck="false"></textarea>
+                </div>
+
+                <!-- Payload -->
+                <div class="jwt-part">
+                    <div class="jwt-part-header">
+                        <span class="jwt-part-label payload-label">PAYLOAD</span>
+                        <span class="jwt-part-expiry" id="expiry-badge"></span>
+                    </div>
+                    <textarea id="decoded-payload" class="jwt-code payload-code" spellcheck="false"></textarea>
+                </div>
+
+                <!-- Signature Verification -->
+                <div class="jwt-part signature-part">
+                    <div class="jwt-part-header">
+                        <span class="jwt-part-label signature-label">VERIFY SIGNATURE</span>
+                    </div>
+                    <div class="signature-code-box">
+                        <pre class="signature-formula"><span class="sig-fn">HMACSHA256(</span>
+  <span class="sig-base64">base64UrlEncode(header)</span> + "." +
+  <span class="sig-base64">base64UrlEncode(payload)</span>,
+  <input type="password" id="secret-input" class="secret-inline-input" placeholder="your-256-bit-secret">
+<span class="sig-fn">)</span></pre>
+                        <button type="button" id="toggle-secret-inline" class="toggle-secret-inline" aria-label="Toggle secret visibility">
+                            <svg id="eye-icon-inline" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
+                    </div>
+                    <label class="base64-checkbox">
+                        <input type="checkbox" id="secret-base64">
+                        <span>secret base64 encoded</span>
+                    </label>
+                </div>
+
+                <!-- Verification Status -->
+                <div id="verification-status" class="verification-status">
+                    <div class="status-icon" id="status-icon"></div>
+                    <span id="status-text">Enter a secret to verify signature</span>
+                </div>
+
+                <!-- Actions -->
+                <div class="decoded-actions">
+                    <button class="copy-btn" id="copy-header">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                        Header
+                    </button>
+                    <button class="copy-btn" id="copy-payload">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                        Payload
+                    </button>
+                    <button class="copy-btn" id="copy-all">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                        All
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Messages -->
+        <div id="status" class="status hidden"></div>
+    </div>
+
+    <footer>
+        <p>Created by <a href="https://herusdianto.github.io/" target="_blank" rel="noopener noreferrer">Heru Rusdianto</a> with AI Assistance</p>
+        <p class="copyright">
+            © <span id="currentYear"></span> All rights reserved
+        </p>
+    </footer>
+
+    <!-- JSRSASIGN for RSA/ECDSA/PS JWT support -->
+    <script src="https://cdn.jsdelivr.net/npm/jsrsasign@11.1.1/lib/jsrsasign-all-min.js"></script>
+    <!-- Main App -->
+    <script src="js/app.js"></script>
+</body>
+</html>
+
