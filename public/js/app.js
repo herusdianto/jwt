@@ -312,12 +312,13 @@ class JWTApp {
         const toggleBtn = document.getElementById('toggle-secret-inline');
         const base64Checkbox = document.getElementById('secret-base64');
 
-        // Verify on secret change
+        // Verify on secret change (do not re-encode the token using the
+        // provided secret, which would make any wrong secret appear valid)
         let secretTimeout;
         secretInput.addEventListener('input', () => {
             clearTimeout(secretTimeout);
             secretTimeout = setTimeout(() => {
-                this.encodeFromDecoded();
+                this.verifySignature();
             }, 300);
         });
 
@@ -334,9 +335,9 @@ class JWTApp {
             }
         });
 
-        // Base64 checkbox
+        // Base64 checkbox affects verification too
         base64Checkbox.addEventListener('change', () => {
-            this.encodeFromDecoded();
+            this.verifySignature();
         });
     }
 
