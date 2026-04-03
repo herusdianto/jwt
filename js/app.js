@@ -89,6 +89,10 @@ class JWTApp {
     setEncodedJWT(jwt) {
         this.currentJWT = jwt;
         this.updateColoredDisplay();
+        // If encoded JWT is changed programmatically, ensure decoding
+        // and signature verification happen as if the user updated it.
+        this.decodeAndDisplay();
+        this.verifySignature();
     }
 
     getPlainTextFromColored() {
